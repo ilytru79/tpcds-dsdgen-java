@@ -13,7 +13,7 @@
 
     <groupId>com.teradata.tpcds</groupId>
     <artifactId>tpcds</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3.2-SNAPSHOT</version>
 
     <name>tpcds</name>
     <description>Java based generator for TPC-DS data</description>

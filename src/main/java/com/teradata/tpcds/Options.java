@@ -30,6 +30,9 @@ public class Options
     public static final boolean DEFAULT_NO_SEXISM = false;
     public static final int DEFAULT_PARALLELISM = 1;
     public static final boolean DEFAULT_OVERWRITE = false;
+    public static final boolean DEFAULT_TOSTDOUT = false;
+
+    public static final int DEFAULT_CHUNK = 1;
 
     @Option(name = {"--scale", "-s"}, title = "scale", description = "Volume of data to generate in GB (Default: 1)")
     public double scale = DEFAULT_SCALE;
@@ -65,6 +68,12 @@ public class Options
     @Option(name = {"--overwrite"}, title = "overwrite", description = "Overwrite existing data files for tables")
     public boolean overwrite = DEFAULT_OVERWRITE;
 
+    @Option(name = {"--stdout"}, title = "stdout", description = "Put data to stdout")
+    public boolean toStdout = DEFAULT_TOSTDOUT;
+
+    @Option(name = {"--chunk"}, title = "chunk of data", description = "Chunk of parallel data")
+    public int chunk = DEFAULT_CHUNK;
+
     public Session toSession()
     {
         validateProperties();
@@ -77,7 +86,9 @@ public class Options
                 doNotTerminate,
                 noSexism,
                 parallelism,
-                overwrite);
+                chunk,
+                overwrite,
+                toStdout);
     }
 
     private static Optional<Table> toTableOptional(String table)

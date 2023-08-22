@@ -43,6 +43,11 @@ public class TableGenerator
             return;
         }
 
+        if (!session.generateOnlyOneTable() && session.isOutputToStdout())
+        {
+            throw new TpcdsException("The ony one table can be generated via stdoout use --table option");
+        }
+
         try (OutputStreamWriter parentWriter = addFileWriterForTable(table);
                 OutputStreamWriter childWriter = table.hasChild() && !session.generateOnlyOneTable() ? addFileWriterForTable(table.getChild()) : null) {
             Results results = constructResults(table, session);
@@ -64,20 +69,26 @@ public class TableGenerator
     private OutputStreamWriter addFileWriterForTable(Table table)
             throws IOException
     {
-        String path = getPath(table);
-        File file = new File(path);
-        boolean newFileCreated = file.createNewFile();
-        if (!newFileCreated) {
-            if (session.shouldOverwrite()) {
-                // truncate the file
-                new FileOutputStream(path).close();
+        if (!session.isOutputToStdout()){
+            String path = getPath(table);
+            File file = new File(path);
+            boolean newFileCreated = file.createNewFile();
+            if (!newFileCreated) {
+                if (session.shouldOverwrite()) {
+                    // truncate the file
+                    new FileOutputStream(path).close();
+                }
+                else {
+                    throw new TpcdsException(format("File %s exists.  Remove it or run with the '--overwrite' option", path));
+                }
             }
-            else {
-                throw new TpcdsException(format("File %s exists.  Remove it or run with the '--overwrite' option", path));
-            }
-        }
 
-        return new OutputStreamWriter(new FileOutputStream(path, true), StandardCharsets.ISO_8859_1);
+            return new OutputStreamWriter(new FileOutputStream(path, true), StandardCharsets.ISO_8859_1);
+        }
+        else
+        {
+            return new OutputStreamWriter(System.out ,StandardCharsets.ISO_8859_1);
+        }
     }
 
     private String getPath(Table table)

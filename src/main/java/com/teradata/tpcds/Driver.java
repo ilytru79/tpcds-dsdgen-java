@@ -51,15 +51,18 @@ public class Driver
             tablesToGenerate = ImmutableList.of(session.getOnlyTableToGenerate());
         }
         else {
-            tablesToGenerate = Table.getBaseTables();
+            if (session.isOutputToStdout()) {
+                throw new TpcdsException("The ony one table can be generated via stdoout use --table option");
+            }
+            else {
+                tablesToGenerate = Table.getBaseTables();
+            }
         }
 
-        for (int i = 1; i <= session.getParallelism(); i++) {
-            int chunkNumber = i;
-            new Thread(() -> {
-                        TableGenerator tableGenerator = new TableGenerator(session.withChunkNumber(chunkNumber));
-                        tablesToGenerate.forEach(tableGenerator::generateTable);
-                    }).start();
-        }
+
+        TableGenerator tableGenerator = new TableGenerator(session);
+        tablesToGenerate.forEach(tableGenerator::generateTable);
+
+
     }
 }

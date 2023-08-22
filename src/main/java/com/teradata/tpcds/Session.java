@@ -25,6 +25,8 @@ import static com.teradata.tpcds.Options.DEFAULT_PARALLELISM;
 import static com.teradata.tpcds.Options.DEFAULT_SCALE;
 import static com.teradata.tpcds.Options.DEFAULT_SEPARATOR;
 import static com.teradata.tpcds.Options.DEFAULT_SUFFIX;
+import static com.teradata.tpcds.Options.DEFAULT_TOSTDOUT;
+
 
 public class Session
 {
@@ -39,13 +41,14 @@ public class Session
     private final int parallelism;
     private final int chunkNumber;
     private final boolean overwrite;
+    private final boolean outputToStdout;
 
-    public Session(double scale, String targetDirectory, String suffix, Optional<Table> table, String nullString, char separator, boolean doNotTerminate, boolean noSexism, int parallelism, boolean overwrite)
+    public Session(double scale, String targetDirectory, String suffix, Optional<Table> table, String nullString, char separator, boolean doNotTerminate, boolean noSexism, int parallelism, boolean overwrite, boolean outputToStdout)
     {
-        this(scale, targetDirectory, suffix, table, nullString, separator, doNotTerminate, noSexism, parallelism, 1, overwrite);
+        this(scale, targetDirectory, suffix, table, nullString, separator, doNotTerminate, noSexism, parallelism, 1, overwrite, outputToStdout);
     }
 
-    public Session(double scale, String targetDirectory, String suffix, Optional<Table> table, String nullString, char separator, boolean doNotTerminate, boolean noSexism, int parallelism, int chunkNumber, boolean overwrite)
+    public Session(double scale, String targetDirectory, String suffix, Optional<Table> table, String nullString, char separator, boolean doNotTerminate, boolean noSexism, int parallelism, int chunkNumber, boolean overwrite, boolean outputToStdout)
     {
         this.scaling = new Scaling(scale);
         this.targetDirectory = targetDirectory;
@@ -58,6 +61,7 @@ public class Session
         this.parallelism = parallelism;
         this.chunkNumber = chunkNumber;
         this.overwrite = overwrite;
+        this.outputToStdout = outputToStdout;
     }
 
     public static Session getDefaultSession()
@@ -78,7 +82,8 @@ public class Session
                 this.noSexism,
                 this.parallelism,
                 this.chunkNumber,
-                this.overwrite
+                this.overwrite,
+                this.outputToStdout
         );
     }
 
@@ -95,7 +100,8 @@ public class Session
                 this.noSexism,
                 this.parallelism,
                 this.chunkNumber,
-                this.overwrite
+                this.overwrite,
+                this.outputToStdout
         );
     }
 
@@ -112,7 +118,8 @@ public class Session
                 this.noSexism,
                 parallelism,
                 this.chunkNumber,
-                this.overwrite
+                this.overwrite,
+                this.outputToStdout
         );
     }
 
@@ -129,7 +136,8 @@ public class Session
                 this.noSexism,
                 this.parallelism,
                 chunkNumber,
-                this.overwrite
+                this.overwrite,
+                this.outputToStdout
         );
     }
 
@@ -146,7 +154,26 @@ public class Session
                 noSexism,
                 this.parallelism,
                 this.chunkNumber,
-                this.overwrite
+                this.overwrite,
+                this.outputToStdout
+        );
+    }
+
+    public Session withOutputToStdout(boolean outputToStdout)
+    {
+        return new Session(
+                this.scaling.getScale(),
+                this.targetDirectory,
+                this.suffix,
+                this.table,
+                this.nullString,
+                this.separator,
+                this.doNotTerminate,
+                this.noSexism,
+                this.parallelism,
+                this.chunkNumber,
+                this.overwrite,
+                outputToStdout
         );
     }
 
@@ -213,6 +240,11 @@ public class Session
         return overwrite;
     }
 
+    public boolean isOutputToStdout()
+    {
+        return outputToStdout;
+    }
+
     public String getCommandLineArguments()
     {
         StringBuilder output = new StringBuilder();
@@ -245,6 +277,10 @@ public class Session
         }
         if (overwrite != DEFAULT_OVERWRITE) {
             output.append("--overwrite ");
+        }
+
+        if (outputToStdout != DEFAULT_TOSTDOUT) {
+            output.append("--stdout ");
         }
 
         // remove trailing space
